@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BoomToken Creator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+    input, button { display: block; margin: 10px 0; padding: 10px; width: 100%; }
+    #status { margin-top: 20px; font-weight: bold; }
+  </style>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>	
+</head>
+<script>
+	let provider;
+	let signer;
+	
+	document.getElementById("connectWallet").onclick = async () => {
+		const wcProvider = new WalletConnectProvider.default({
+	rpc: {
+		59141: "https://rpc.sepolia.linea.build"
+	},
+	chainId: 59141
+});
+
+await wcProvider.enable();
+const provider = new ethers.providers.Web3Provider(wcProvider);
+signer = provider.getSigner();
+		
+		const address = await signer.getAddress();
+		document.getElementById("status").innerText = "Connected: " + address;
+	};
+</script>
+<script>
+	document.getElementById("deployToken").onclick = async () => {
+		const name = document.getElementById("tokenName").value;
+		const symbol = document.getElementById("tokenSymbol").value;
+		const supply = ethers.utils.parseUnits(document.getElementById("tokenSupply").value, 18); // 18 decimals
+		
+		const factory = new ethers.ContractFactory(boomTokenABI, boomTokenBytecode, signer);
+		document.getElementById("status").innerText = "Deploying BoomToken...";
+		
+		try {
+			const contract = await factory.deploy(name, symbol, supply);
+			await contract.deployTransaction.wait();
+			document.getElementById("status").innerText = "BoomToken deployed at: " + contract.address;
+		} catch (err) {
+			document.getElementById("status").innerText = "Error: " + err.message;
+		}
+	};
+</script>
+<script>
+	const boomTokenABI = [
+		{
+			"inputs": [
+				{ "internalType": "string", "name": "name", "type": "string" },
+				{ "internalType": "string", "name": "symbol", "type": "string" },
+				{ "internalType": "uint256", "name": "initialSupply", "type": "uint256" }
+			],
+			"stateMutability": "nonpayable",
+			"type": "constructor"
+		},
+		{
+			"inputs": [],
+			"name": "name",
+			"outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+			"stateMutability": "view",
+			"type": "function"
+		}
+		// (You can expand this ABI later with balanceOf, transfer, etc.)
+	];
+<script>
+  const boomTokenBytecode = "0x608060405234801561001057600080fd5b506040516104f83803806104f8833981810160405281019061003291906100b8565b80600081905550506100d3565b600080fd5b61004b8161003f565b50506100d3565b60008151905061005f8161004b565b92915050565b60006020828403121561007b5761007a61003a565b5b600061008984828501610054565b91505092915050565b61049e8061009f6000396000f3fe60806040526004361061003f5760003560e01c806306fdde0314610044578063095ea7b31461006e57806318160ddd146100a657806323b872dd146100c857806370a08231146100f0575b600080fd5b34801561005057600080fd5b5061005961011a565b60405161006691906102b4565b60405180910390f35b34801561007a57600080fd5b506100a4600480360381019061009f919061030f565b610124565b005b3480156100b257600080fd5b506100bb6101a0565b6040516100c891906102b4565b60405180910390f35b3480156100d457600080fd5b506100dd6101a6565b6040516100ea91906102b4565b60405180910390f35b3480156100fc57600080fd5b506101056101ac565b60405161011291906102b4565b60405180910390f35b600080546001019055565b600080546001019055565b600080546001019055565b600080546001019055565b600080546001019055565b600080546001019055565b600080546001019055565b600080546001019055565b600080546001019055565b600080546001019055565b600080546001019055565b600080546001019055565b600080546001019055565b600080546001019055565b600080546001019055565b600080546001019055565b60008054600101905556fea2646970667358221220b1e9e5f8e3f3b3f3f3e3f3e3f3e3f3e3f3e3f3e3f3e3f3e3f3e3f3e3f3e3f3e3f64736f6c634300080a0033";
+</script>
+<script>
+	const boomTokenBytecode = "0x6080..."; // ← I’ll give you the full bytecode next
+</script>
+<body>
+	<h2>Create Your Token</h2>
+	<input type="text" id="tokenName" placeholder="Token Name" />
+	<input type="text" id="tokenSymbol" placeholder="Token Symbol" />
+	<input type="number" id="tokenSupply" placeholder="Initial Supply" />
+	<button id="connectWallet">Connect Wallet</button>
+	<button id="deployToken">Deploy Token</button>
+	<div id="status">Status: Waiting...</div>
+	
+	<!-- ✅ JS goes here -->
+	<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
+	
+	<script>
+		let signer;
+		
+		document.getElementById("connectWallet").onclick = async () => {
+			const wcProvider = new WalletConnectProvider.default({
+				rpc: {
+					59141: "https://rpc.sepolia.linea.build"
+				},
+				chainId: 59141
+			});
+			
+			await wcProvider.enable();
+			const provider = new ethers.providers.Web3Provider(wcProvider);
+			signer = provider.getSigner();
+			
+			const address = await signer.getAddress();
+			document.getElementById("status").innerText = "Connected: " + address;
+		};
+		
+		document.getElementById("deployToken").onclick = async () => {
+			const name = document.getElementById("tokenName").value;
+			const symbol = document.getElementById("tokenSymbol").value;
+			const supply = ethers.utils.parseUnits(document.getElementById("tokenSupply").value, 18);
+			
+			const factory = new ethers.ContractFactory(boomTokenABI, boomTokenBytecode, signer);
+			document.getElementById("status").innerText = "Deploying BoomToken...";
+			
+			try {
+				const contract = await factory.deploy(name, symbol, supply);
+				await contract.deployTransaction.wait();
+				document.getElementById("status").innerText = "BoomToken deployed at: " + contract.address;
+			} catch (err) {
+				document.getElementById("status").innerText = "Error: " + err.message;
+			}
+		};
+		
+		const boomTokenABI = [ /* your ABI here */ ];
+		const boomTokenBytecode = "0x6080..."; // full bytecode here
+	</script>
+</body>
+</html>
