@@ -77,5 +77,57 @@ signer = provider.getSigner();
 <script>
 	const boomTokenBytecode = "0x6080..."; // ← I’ll give you the full bytecode next
 </script>
-	
-		 </html>
+<body>
+  <h2>Create Your Token</h2>
+  <input type="text" id="tokenName" placeholder="Token Name" />
+  <input type="text" id="tokenSymbol" placeholder="Token Symbol" />
+  <input type="number" id="tokenSupply" placeholder="Initial Supply" />
+  <button id="connectWallet">Connect Wallet</button>
+  <button id="deployToken">Deploy Token</button>
+  <div id="status">Status: Waiting...</div>
+
+  <!-- ✅ JS goes here -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
+
+  <script>
+    let signer;
+
+    document.getElementById("connectWallet").onclick = async () => {
+      const wcProvider = new WalletConnectProvider.default({
+        rpc: {
+          59141: "https://rpc.sepolia.linea.build"
+        },
+        chainId: 59141
+      });
+
+      await wcProvider.enable();
+      const provider = new ethers.providers.Web3Provider(wcProvider);
+      signer = provider.getSigner();
+
+      const address = await signer.getAddress();
+      document.getElementById("status").innerText = "Connected: " + address;
+    };
+
+    document.getElementById("deployToken").onclick = async () => {
+      const name = document.getElementById("tokenName").value;
+      const symbol = document.getElementById("tokenSymbol").value;
+      const supply = ethers.utils.parseUnits(document.getElementById("tokenSupply").value, 18);
+
+      const factory = new ethers.ContractFactory(boomTokenABI, boomTokenBytecode, signer);
+      document.getElementById("status").innerText = "Deploying BoomToken...";
+
+      try {
+        const contract = await factory.deploy(name, symbol, supply);
+        await contract.deployTransaction.wait();
+        document.getElementById("status").innerText = "BoomToken deployed at: " + contract.address;
+      } catch (err) {
+        document.getElementById("status").innerText = "Error: " + err.message;
+      }
+    };
+
+    const boomTokenABI = [/* your ABI here */];
+    const boomTokenBytecode = "0x6080..."; // full bytecode here
+  </script>
+  </body>
+</html>
